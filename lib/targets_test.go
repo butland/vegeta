@@ -78,3 +78,18 @@ func TestSetHeader(t *testing.T) {
 		}
 	}
 }
+
+func TestSetBody(t *testing.T) {
+	t.Parallel()
+
+	targets, _ := NewTargets([]string{"GET http://lolcathost:9999/"})
+
+	want := []byte("OMG MUCH WOW, SUCH NICE")
+	targets.SetBody(want)
+
+	for _, target := range targets {
+		if got, _ := ioutil.ReadAll(target.Body); !bytes.Equal(want, got) {
+			t.Errorf("Want: %s, Got: %s", want, got)
+		}
+	}
+}

@@ -2,8 +2,10 @@ package vegeta
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"strings"
@@ -70,5 +72,13 @@ func (t Targets) SetHeader(header http.Header) {
 				copy(target.Header[k], vs)
 			}
 		}
+	}
+}
+
+// SetBody wraps the passed byte slice as an io.ReadCloser and sets it as
+// the body of all Targets. The passed byte slice is assumed to be immutable.
+func (t Targets) SetBody(body []byte) {
+	for _, target := range t {
+		target.Body = ioutil.NopCloser(bytes.NewReader(body))
 	}
 }

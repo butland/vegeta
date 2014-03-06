@@ -96,9 +96,11 @@ func TestSetBody(t *testing.T) {
 	want := []byte("OMG MUCH WOW, SUCH NICE")
 	targets.SetBody(want)
 
-	for _, target := range targets {
-		if got, _ := ioutil.ReadAll(target.Body); !bytes.Equal(want, got) {
-			t.Errorf("Want: %s, Got: %s", want, got)
+	for i := 0; i < 2; i++ {
+		for _, target := range targets {
+			if got, _ := ioutil.ReadAll(target.Body); !bytes.Equal(want, got) {
+				t.Errorf("Want: %s, Got: %s", want, got)
+			}
 		}
 	}
 }

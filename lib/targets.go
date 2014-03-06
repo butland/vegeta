@@ -77,6 +77,7 @@ func (t Targets) SetHeader(header http.Header) {
 
 // SetBody wraps the passed byte slice as an io.ReadCloser and sets it as
 // the body of all Targets. The passed byte slice is assumed to be immutable.
+// BUG(tsenart): The body isn't reusable between hits nor thread-safe
 func (t Targets) SetBody(body []byte) {
 	for _, target := range t {
 		target.Body = ioutil.NopCloser(bytes.NewReader(body))

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
@@ -19,6 +20,7 @@ func attackCmd(args []string) command {
 
 		fs.StringVar(&opts.targetsf, "targets", "stdin", "Targets file")
 		fs.StringVar(&opts.outputf, "output", "stdout", "Output file")
+		fs.StringVar(&opts.bodyf, "body", "", "Requests body file")
 		fs.StringVar(&opts.ordering, "ordering", "random", "Attack ordering [sequential, random]")
 		fs.DurationVar(&opts.duration, "duration", 10*time.Second, "Duration of the test")
 		fs.DurationVar(&opts.timeout, "timeout", 0, "Requests timeout")
@@ -38,6 +40,7 @@ func attackCmd(args []string) command {
 type attackOpts struct {
 	targetsf  string
 	outputf   string
+	bodyf     string
 	ordering  string
 	duration  time.Duration
 	timeout   time.Duration
@@ -68,6 +71,20 @@ func attack(opts *attackOpts) error {
 		return fmt.Errorf(errTargetsFilePrefix+"(%s): %s", opts.targetsf, err)
 	}
 	targets.SetHeader(opts.headers.Header)
+
+	if opts.bodyf != "" {
+		body, err := file(opts.bodyf, false)
+		if err != nil {
+			return fmt.Errorf(errBodyFilePrefix+"(%s): %s", opts.bodyf, err)
+		}
+		defer body.Close()
+
+		bodybs, err := ioutil.ReadAll(body)
+		if err != nil {
+			return fmt.Errorf(errBodyFilePrefix+"(%s): %s", opts.bodyf, err)
+		}
+		targets.SetBody(bodybs)
+	}
 
 	switch opts.ordering {
 	case "random":
@@ -107,6 +124,7 @@ const (
 	errDurationPrefix    = "Duration: "
 	errOutputFilePrefix  = "Output file: "
 	errTargetsFilePrefix = "Targets file: "
+	errBodyFilePrefix    = "Body file: "
 	errOrderingPrefix    = "Ordering: "
 	errReportingPrefix   = "Reporting: "
 )
